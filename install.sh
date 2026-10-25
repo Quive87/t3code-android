@@ -649,6 +649,9 @@ rootfs() {
   done
   return 1
 }
+if [ -n "${PD_CONTAINER:-}" ] || [ "${container:-}" = "proot-distro" ]; then
+  die "this runs in Termux, not inside the container. Open a Termux session and run t3code there."
+fi
 ROOTFS=$(rootfs || true)
 need_container() { [ -n "$ROOTFS" ] || die "the $CONTAINER container is missing; run the installer again: curl -fsSL $T3A_INSTALL_URL | bash"; }
 
@@ -671,6 +674,9 @@ launcher_pid() {
 healthy() { curl -fsS -m 4 -o /dev/null "http://127.0.0.1:$T3A_PORT/.well-known/t3/environment" 2>/dev/null; }
 clip() { command -v termux-clipboard-set >/dev/null 2>&1 && printf '%s' "$1" | timeout 8 termux-clipboard-set 2>/dev/null; }
 open_url() { command -v termux-open-url >/dev/null 2>&1 && timeout 8 termux-open-url "$1" 2>/dev/null; }
+# Termux's wake lock keeps the CPU running while the server works with the screen off.
+wake_lock() { [ "$T3A_WAKE_LOCK" = 1 ] && timeout 10 termux-wake-lock > /dev/null 2>&1; return 0; }
+wake_unlock() { [ "$T3A_WAKE_LOCK" = 1 ] && timeout 10 termux-wake-unlock > /dev/null 2>&1; return 0; }
 android_sdk() { command -v getprop >/dev/null 2>&1 && getprop ro.build.version.sdk 2>/dev/null || echo 0; }
 
 rotate_logs() {
@@ -689,9 +695,10 @@ stop_launcher() {
 }
 
 update_ticker() {
-  local today
+  local today supervisor=$$ # $$ stays the supervisor's pid inside this subshell
   while sleep 900; do
     [ -e "$STATE_DIR/stop" ] && exit 0
+    pid_alive "$supervisor" && [ "$(cat "$STATE_DIR/supervisor.pid" 2>/dev/null)" = "$supervisor" ] || exit 0
     case "$T3A_UPDATE_HOUR" in "" | off | none | no) continue ;; esac
     [ "$(date +%-H)" -eq "$T3A_UPDATE_HOUR" ] 2>/dev/null || continue
     today=$(date +%F)
@@ -760,7 +767,7 @@ supervise() {
   done
   kill "$ticker" 2>/dev/null
   rm -f "$STATE_DIR/supervisor.pid"
-  [ "$T3A_WAKE_LOCK" = 1 ] && termux-wake-unlock 2>/dev/null
+  wake_unlock
   slog "supervisor stopped"
 }
 
@@ -791,7 +798,7 @@ cmd_start() {
     return 0
   fi
   rm -f "$STATE_DIR/stop"
-  [ "$T3A_WAKE_LOCK" = 1 ] && termux-wake-lock 2>/dev/null
+  wake_lock
   nohup setsid "$SELF" __supervise < /dev/null >> "$LOG_DIR/supervisor.log" 2>&1 &
   [ "${1:-}" = "--boot" ] && return 0
   say "Starting T3 Code..."
@@ -810,7 +817,7 @@ cmd_stop() {
   lp=$(launcher_pid) || lp=""
   if [ -z "$sp" ] && [ -z "$lp" ]; then
     say "T3 Code is not running."
-    [ "$T3A_WAKE_LOCK" = 1 ] && termux-wake-unlock 2>/dev/null
+    wake_unlock
     return 0
   fi
   say "Stopping T3 Code..."
@@ -827,7 +834,7 @@ cmd_stop() {
     [ -n "$sp" ] && kill -KILL "$sp" 2>/dev/null
   fi
   rm -f "$STATE_DIR/supervisor.pid"
-  [ "$T3A_WAKE_LOCK" = 1 ] && termux-wake-unlock 2>/dev/null
+  wake_unlock
   say "Stopped."
 }
 
@@ -1160,6 +1167,9 @@ main() {
   printf '\n%sT3 Code for Android%s %s(installer %s)%s\n' "$B" "$N" "$D" "$T3A_VERSION" "$N"
   printf '%sNewest nightly T3 Code server + agent CLIs, running on this device.%s\n' "$D" "$N"
 
+  if [ -n "${PD_CONTAINER:-}" ] || [ "${container:-}" = "proot-distro" ]; then
+    die "run this in a Termux session, not inside the container (for example not in T3 Code's terminal)"
+  fi
   [ -x "$PREFIX/bin/pkg" ] || [ -n "${TERMUX_VERSION:-}" ] || die "run this inside the Termux app (https://github.com/termux/termux-app/releases)"
   [ "$(id -u)" -ne 0 ] || die "run this as the normal Termux user, not as root"
   case "$(uname -m)" in

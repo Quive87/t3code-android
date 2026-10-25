@@ -59,8 +59,10 @@ t3code stop
 guest t3code-guest-update apply "$older" && pass "pinned the older nightly $older" || fail "could not pin $older"
 t3code start > /dev/null
 now=$(guest t3code-guest-update active)
+latest=$(guest t3code-guest-update latest) # a new nightly may have shipped meanwhile
 [ "$now" = "$latest" ] && pass "start moved $older -> $now" || fail "after start active=$now (expected $latest)"
 wait_for 120 env_json > /dev/null && pass "server healthy after update" || fail "server down after update"
+latest=$now
 
 section "Rollback of a broken nightly"
 t3code stop
