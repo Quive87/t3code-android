@@ -40,8 +40,10 @@ You need an arm64 Android device with Android 7 or newer and about 4 GB of free 
 
    This takes 10–20 minutes the first time. When it finishes, T3 Code is running, and a link
    for the app has been copied to the clipboard.
-5. **Connect the app.** In T3 Code open **Settings > Environments > Add environment** and paste
-   the link. Run `t3code pair` for a fresh one. To use Chrome instead, run `t3code open`.
+5. **Connect the app.** Open the T3 Code app and tap **Add environment**. Under **Or enter it**,
+   type the **Address** (`127.0.0.1:3773`) and the **Code** that Termux printed, then tap the
+   checkmark. Codes work for 15 minutes; `t3code pair` prints a new one. To use Chrome instead,
+   run `t3code open`.
 6. **Sign in to your agents** in Termux:
 
    ```sh

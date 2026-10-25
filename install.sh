@@ -944,10 +944,17 @@ cmd_pair() {
     say "In T3 Code on that device: Settings > Connections (or Environments) > Add environment, paste it."
     return 0
   fi
-  say "Link for the T3 Code app on ${B}this${N} device (valid 15 minutes):"
-  say "  ${B}$local_url${N}"
-  if clip "$local_url"; then say "${G}Copied to the clipboard.${N}"; fi
-  say "In the T3 Code app: Settings > Environments > Add environment, then paste the link."
+  say "Connect the T3 Code app on ${B}this${N} device (the code works for 15 minutes):"
+  say "  1. Open the T3 Code app and tap ${B}Add environment${N}"
+  say "     (later on: Settings > Environments > Add environment)."
+  say "  2. Under \"Or enter it\", fill in:"
+  say "       Address:  ${B}127.0.0.1:$T3A_PORT${N}"
+  say "       Code:     ${B}$token${N}"
+  say "  3. Tap the checkmark at the top."
+  say ""
+  say "  Link: $local_url"
+  if clip "$local_url"; then say "  ${G}The link is on the clipboard; pasting it into Address alone also works.${N}"; fi
+  say "  New code any time: t3code pair"
 }
 
 cmd_open() {
@@ -1300,7 +1307,7 @@ main() {
 
   1. Install the T3 Code app (newest nightly build) with Obtainium, or
      open http://127.0.0.1:$T3A_PORT in Chrome for the full desktop UI ('t3code open').
-  2. Connect the app:  ${B}t3code pair${N}  -> paste into Settings > Environments > Add environment.
+  2. Connect the app with the Address and Code printed below ('t3code pair' prints new ones).
   3. Sign in to your agents:  ${B}t3code login claude${N}, ${B}codex${N}, ${B}grok${N}, ${B}opencode${N}
      (Antigravity and Cursor: Settings > Providers in T3 Code).
   4. Keep Android from killing agents:  ${B}t3code fix-android${N}
