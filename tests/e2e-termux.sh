@@ -88,10 +88,11 @@ wait_for 120 env_json > /dev/null && pass "server healthy after rollback" || fai
 rm -rf "${vdir:?}/$fake"
 
 section "16 KB page support (segment realignment)"
-guest bash -c "cp \"\$T3CODE_HOME/runtime/versions/$latest/t3\" /tmp/t3-16k && node /usr/local/lib/t3code-android/fix-elf-align.js /tmp/t3-16k 65536" &&
+# The executable loads node_modules from its own directory, so realign a full copy.
+guest bash -c "rm -rf /tmp/t3-16k-dir && cp -a \"\$T3CODE_HOME/runtime/versions/$latest\" /tmp/t3-16k-dir && node /usr/local/lib/t3code-android/fix-elf-align.js /tmp/t3-16k-dir/t3 65536" &&
   pass "realigned" || fail "realign failed"
 guest node -e '
-  const b = require("fs").readFileSync("/tmp/t3-16k");
+  const b = require("fs").readFileSync("/tmp/t3-16k-dir/t3");
   const off = Number(b.readBigUInt64LE(32)), sz = b.readUInt16LE(54), n = b.readUInt16LE(56);
   for (let i = 0; i < n; i++) {
     const p = off + i * sz;
@@ -99,9 +100,9 @@ guest node -e '
     const o = b.readBigUInt64LE(p + 8), v = b.readBigUInt64LE(p + 16);
     if ((v - o) % 65536n !== 0n) { console.error("misaligned segment at 0x" + v.toString(16)); process.exit(1); }
   }' && pass "every segment is 64 KB-congruent" || fail "segments still misaligned"
-v16=$(guest /tmp/t3-16k --version 2>&1 | tail -n1)
-guest /tmp/t3-16k --version > /dev/null 2>&1 && pass "realigned binary still runs ($v16)" || fail "realigned binary does not run: $v16"
-guest rm -f /tmp/t3-16k
+v16=$(guest /tmp/t3-16k-dir/t3 --version 2>&1 | tail -n1)
+guest /tmp/t3-16k-dir/t3 --version > /dev/null 2>&1 && pass "realigned binary still runs ($v16)" || fail "realigned binary does not run: $v16"
+guest rm -rf /tmp/t3-16k-dir
 
 section "Stop"
 t3code stop

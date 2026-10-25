@@ -259,7 +259,17 @@ backup_databases() {
   for f in "$T3CODE_HOME"/userdata/*.sqlite "$T3CODE_HOME"/userdata/*.sqlite-wal "$T3CODE_HOME"/userdata/*.sqlite-shm; do
     [ -f "$f" ] && cp -p "$f" "$BACKUP/files/"
   done
+  # T3 Code prunes runtimes nothing points at when it starts; a recorded launcher
+  # link keeps the previous version around until the new one has proven itself.
+  ln -sfn "$VERSIONS/$from/t3" "$RUNTIME/android-previous-t3"
+  grep -qxF "$RUNTIME/android-previous-t3" "$RUNTIME/launchers" 2>/dev/null ||
+    printf '%s\n' "$RUNTIME/android-previous-t3" >> "$RUNTIME/launchers"
   return 0
+}
+
+forget_backup() {
+  rm -rf "$BACKUP"
+  rm -f "$RUNTIME/android-previous-t3"
 }
 
 activate() {
@@ -310,7 +320,7 @@ cmd_rollback() {
   printf '%s\n' "$to" >> "$BLOCKED"
   write_state "$from"
   point_t3_command "$from"
-  rm -rf "$BACKUP"
+  forget_backup
 }
 
 cmd_ensure() {
@@ -363,7 +373,7 @@ case "${1:-status}" in
   ensure) cmd_ensure ;;
   apply) shift; cmd_apply "${1:-}" ;;
   rollback) shift; cmd_rollback "${1:-}" ;;
-  commit) rm -rf "$BACKUP" ;;
+  commit) forget_backup ;;
   prepare-launch) cmd_prepare_launch ;;
   installed) installed_versions ;;
   status) cmd_status ;;
@@ -473,12 +483,20 @@ const type = (i) => buf.readUInt32LE(at(i, 0));
 const get = (i, o) => buf.readBigUInt64LE(at(i, o));
 const put = (i, o, v) => buf.writeBigUInt64LE(v, at(i, o));
 const OFFSET = 8, VADDR = 16, PADDR = 24, MEMSZ = 40, ALIGN = 48;
+const PT_NOTE = 4;
 const loads = [...Array(phnum).keys()].filter((i) => type(i) === PT_LOAD);
 let moved = 0;
 for (const i of loads) {
   const offset = get(i, OFFSET), vaddr = get(i, VADDR), memsz = get(i, MEMSZ);
   const skew = (((offset - vaddr) % page) + page) % page;
   if (skew === 0n) continue;
+  // Code addresses other segments relative to its own, so only a segment that holds
+  // nothing but a note (the blob postject appends) can move safely.
+  const isNote = [...Array(phnum).keys()].some((j) => type(j) === PT_NOTE && get(j, VADDR) === vaddr);
+  if (!isNote) {
+    console.error(`${file}: segment at 0x${vaddr.toString(16)} is misaligned and cannot be moved safely`);
+    process.exit(1);
+  }
   const next = loads.map((j) => get(j, VADDR)).filter((v) => v > vaddr).sort((a, b) => (a < b ? -1 : 1))[0];
   if (next !== undefined && vaddr + skew + memsz > next) {
     console.error(`${file}: segment at 0x${vaddr.toString(16)} cannot move without overlapping`);
