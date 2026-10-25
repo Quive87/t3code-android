@@ -541,6 +541,14 @@ say "Installing developer tools (git, python, compilers, gh, ripgrep, ...)"
   python3 python3-pip python3-venv build-essential pkg-config sqlite3 gh \
   locales tzdata bash-completion iproute2 netbase
 
+say "Installing libraries and fonts for T3's built-in browser (HTML previews, browser tabs)"
+"${APT[@]}" install --no-install-recommends \
+  fontconfig fonts-liberation libnss3 libnspr4 libdbus-1-3 libexpat1 libgbm1 libdrm2 \
+  libxkbcommon0 libx11-6 libxcb1 libxcomposite1 libxdamage1 libxext6 libxfixes3 libxrandr2 \
+  libasound2t64 libatk1.0-0t64 libatk-bridge2.0-0t64 libatspi2.0-0t64 libcups2t64 \
+  libpango-1.0-0 libcairo2 libglib2.0-0t64 ||
+  echo "    (browser libraries unavailable; HTML previews may not work)" >&2
+
 if ! locale -a 2>/dev/null | grep -qi '^en_US.utf8$'; then
   sed -i 's/^# *\(en_US.UTF-8 UTF-8\)/\1/' /etc/locale.gen
   locale-gen >/dev/null
@@ -607,6 +615,9 @@ if ! grep -q '^T3CODE_PORT=' "$T3CODE_HOME/service.env" 2>/dev/null; then
 else
   sed -i "s/^T3CODE_PORT=.*/T3CODE_PORT=${T3A_PORT:-3773}/" "$T3CODE_HOME/service.env"
 fi
+# proot has no namespaces for Chrome's sandbox; T3 documents this switch for such hosts.
+grep -q '^T3CODE_SERVER_BROWSER_SANDBOX=' "$T3CODE_HOME/service.env" ||
+  printf 'T3CODE_SERVER_BROWSER_SANDBOX=0\n' >> "$T3CODE_HOME/service.env"
 chmod 600 "$T3CODE_HOME/service.env"
 
 say "Installing T3 Code (${T3A_CHANNEL:-nightly})"
