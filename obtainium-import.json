@@ -1,0 +1,39 @@
+{
+  "apps": [
+    {
+      "id": "com.t3tools.t3code",
+      "url": "https://github.com/pingdotgg/t3code",
+      "author": "pingdotgg",
+      "name": "T3 Code (nightly)",
+      "additionalSettings": "{\"includePrereleases\":true,\"includeDrafts\":false,\"fallbackToOlderReleases\":true,\"filterReleaseTitlesByRegEx\":\"^T3 Code Nightly\",\"invertReleaseTitlesFilter\":false,\"filterReleaseNotesByRegEx\":\"\",\"invertReleaseNotesFilter\":false,\"verifyLatestTag\":false,\"sortMethodChoice\":\"date\",\"useLatestAssetDateAsReleaseDate\":false,\"releaseTitleAsVersion\":false,\"trackOnly\":false,\"versionExtractionRegEx\":\"\",\"matchGroupToUse\":\"\",\"versionDetection\":false,\"useVersionCodeAsOSVersion\":false,\"apkFilterRegEx\":\"^t3code-android-internal-.*\\\\.apk$\",\"invertAPKFilter\":false,\"autoApkFilterByArch\":true,\"shizukuPretendToBeGooglePlay\":false,\"allowInsecure\":false,\"exemptFromBackgroundUpdates\":false,\"skipUpdateNotifications\":false,\"refreshBeforeDownload\":false,\"appName\":\"T3 Code (nightly)\",\"appAuthor\":\"pingdotgg\",\"about\":\"Nightly Android build of T3 Code from github.com/pingdotgg/t3code releases.\"}"
+    },
+    {
+      "id": "com.termux",
+      "url": "https://github.com/termux/termux-app",
+      "author": "termux",
+      "name": "Termux",
+      "additionalSettings": "{\"includePrereleases\":false,\"includeDrafts\":false,\"fallbackToOlderReleases\":true,\"filterReleaseTitlesByRegEx\":\"\",\"invertReleaseTitlesFilter\":false,\"filterReleaseNotesByRegEx\":\"\",\"invertReleaseNotesFilter\":false,\"verifyLatestTag\":false,\"sortMethodChoice\":\"date\",\"useLatestAssetDateAsReleaseDate\":false,\"releaseTitleAsVersion\":false,\"trackOnly\":false,\"versionExtractionRegEx\":\"\",\"matchGroupToUse\":\"\",\"versionDetection\":false,\"useVersionCodeAsOSVersion\":false,\"apkFilterRegEx\":\"_(arm64-v8a|x86_64)\\\\.apk$\",\"invertAPKFilter\":false,\"autoApkFilterByArch\":true,\"shizukuPretendToBeGooglePlay\":false,\"allowInsecure\":false,\"exemptFromBackgroundUpdates\":false,\"skipUpdateNotifications\":false,\"refreshBeforeDownload\":false,\"appName\":\"Termux\",\"appAuthor\":\"termux\"}"
+    },
+    {
+      "id": "com.termux.boot",
+      "url": "https://github.com/termux/termux-boot",
+      "author": "termux",
+      "name": "Termux:Boot",
+      "additionalSettings": "{\"includePrereleases\":false,\"includeDrafts\":false,\"fallbackToOlderReleases\":true,\"filterReleaseTitlesByRegEx\":\"\",\"invertReleaseTitlesFilter\":false,\"filterReleaseNotesByRegEx\":\"\",\"invertReleaseNotesFilter\":false,\"verifyLatestTag\":false,\"sortMethodChoice\":\"date\",\"useLatestAssetDateAsReleaseDate\":false,\"releaseTitleAsVersion\":false,\"trackOnly\":false,\"versionExtractionRegEx\":\"\",\"matchGroupToUse\":\"\",\"versionDetection\":false,\"useVersionCodeAsOSVersion\":false,\"apkFilterRegEx\":\"\",\"invertAPKFilter\":false,\"autoApkFilterByArch\":true,\"shizukuPretendToBeGooglePlay\":false,\"allowInsecure\":false,\"exemptFromBackgroundUpdates\":false,\"skipUpdateNotifications\":false,\"refreshBeforeDownload\":false,\"appName\":\"Termux:Boot\",\"appAuthor\":\"termux\"}"
+    },
+    {
+      "id": "com.termux.api",
+      "url": "https://github.com/termux/termux-api",
+      "author": "termux",
+      "name": "Termux:API",
+      "additionalSettings": "{\"includePrereleases\":false,\"includeDrafts\":false,\"fallbackToOlderReleases\":true,\"filterReleaseTitlesByRegEx\":\"\",\"invertReleaseTitlesFilter\":false,\"filterReleaseNotesByRegEx\":\"\",\"invertReleaseNotesFilter\":false,\"verifyLatestTag\":false,\"sortMethodChoice\":\"date\",\"useLatestAssetDateAsReleaseDate\":false,\"releaseTitleAsVersion\":false,\"trackOnly\":false,\"versionExtractionRegEx\":\"\",\"matchGroupToUse\":\"\",\"versionDetection\":false,\"useVersionCodeAsOSVersion\":false,\"apkFilterRegEx\":\"\",\"invertAPKFilter\":false,\"autoApkFilterByArch\":true,\"shizukuPretendToBeGooglePlay\":false,\"allowInsecure\":false,\"exemptFromBackgroundUpdates\":false,\"skipUpdateNotifications\":false,\"refreshBeforeDownload\":false,\"appName\":\"Termux:API\",\"appAuthor\":\"termux\"}"
+    },
+    {
+      "id": "com.termux.widget",
+      "url": "https://github.com/termux/termux-widget",
+      "author": "termux",
+      "name": "Termux:Widget",
+      "additionalSettings": "{\"includePrereleases\":false,\"includeDrafts\":false,\"fallbackToOlderReleases\":true,\"filterReleaseTitlesByRegEx\":\"\",\"invertReleaseTitlesFilter\":false,\"filterReleaseNotesByRegEx\":\"\",\"invertReleaseNotesFilter\":false,\"verifyLatestTag\":false,\"sortMethodChoice\":\"date\",\"useLatestAssetDateAsReleaseDate\":false,\"releaseTitleAsVersion\":false,\"trackOnly\":false,\"versionExtractionRegEx\":\"\",\"matchGroupToUse\":\"\",\"versionDetection\":false,\"useVersionCodeAsOSVersion\":false,\"apkFilterRegEx\":\"\",\"invertAPKFilter\":false,\"autoApkFilterByArch\":true,\"shizukuPretendToBeGooglePlay\":false,\"allowInsecure\":false,\"exemptFromBackgroundUpdates\":false,\"skipUpdateNotifications\":false,\"refreshBeforeDownload\":false,\"appName\":\"Termux:Widget\",\"appAuthor\":\"termux\"}"
+    }
+  ]
+}

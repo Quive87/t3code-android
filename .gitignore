@@ -1,0 +1,3 @@
+embedded/
+*.log
+env.json

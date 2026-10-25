@@ -1,0 +1,41 @@
+name: test
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v5
+      - name: Syntax and shellcheck (installer and the scripts it embeds)
+        run: |
+          sudo apt-get install -y -q shellcheck
+          bash -n install.sh
+          python3 tests/extract-embedded.py install.sh embedded
+          for f in embedded/*.sh; do bash -n "$f"; done
+          for f in embedded/*.js; do node --check "$f"; done
+          shellcheck -s bash -S warning -e SC1091,SC2034 install.sh tests/*.sh embedded/*.sh
+
+  termux:
+    name: Termux on aarch64, end to end
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install and exercise T3 Code inside termux-docker
+        run: |
+          docker run --rm --privileged -v "$GITHUB_WORKSPACE:/repo:ro" \
+            termux/termux-docker:aarch64 bash /repo/tests/e2e-termux.sh
+
+  linux:
+    name: Debian guest under proot on aarch64
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v5
+      - run: bash tests/e2e-linux.sh
