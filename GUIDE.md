@@ -43,6 +43,12 @@ Obtainium installs the other apps and keeps them up to date.
 If Termux says **App not installed** or **conflicts with an existing package**, an older Termux is
 already on the tablet. Uninstall it (long-press its icon > Uninstall) and try again.
 
+If Obtainium shows **403** or **rate limited**, GitHub has stopped answering your Wi-Fi for up to an
+hour (it allows about 60 checks per hour per connection). Either wait and tap **Install** again, or
+download that app directly in Chrome: open its GitHub page, for example
+**github.com/termux/termux-boot/releases/latest**, and tap the `.apk` file under **Assets**. To stop
+it from happening again, see "GitHub access token" at the bottom of this page.
+
 ### Step 4. Open Termux:Boot once
 
 Open **Termux:Boot** from your apps. *You see:* a short page of text. Close it. That's all: now
@@ -205,4 +211,19 @@ PC open Settings > Connections, create a pairing link, and scan its QR code with
 | The code expired | In Termux, type `t3code pair` |
 | Agents stop when the screen is off | Do Part 5 again |
 | Red **Installation failed** | Run the install command again |
+| Obtainium shows **403** or **rate limited** | Wait up to an hour, or add a GitHub access token (below) |
 | Anything else | In Termux, type `t3code doctor` and send a screenshot |
+
+### GitHub access token (stops Obtainium's 403 errors)
+
+GitHub allows about 60 update checks per hour per internet connection. With a free token,
+Obtainium gets 5,000 per hour.
+
+1. In Chrome, sign in to GitHub and open **github.com/settings/tokens/new**.
+2. Under **Note**, type `Obtainium`. Under **Expiration**, pick **No expiration**. Don't tick any
+   boxes.
+3. Tap **Generate token** at the bottom and copy the token (it starts with `ghp_`).
+4. In Obtainium, open **Settings**, scroll to **Source-specific**, paste the token into
+   **GitHub access token**, and go back.
+
+Keep the token private. With no boxes ticked, it can only read public information.

@@ -131,6 +131,9 @@ To give agents environment variables such as API keys, put `KEY=value` lines in
 - **16 KB memory pages** (some newer devices; `t3code doctor` shows the page size): T3 Code's
   binary is realigned automatically during install and on `t3code update`. In-app **Update
   server** may fail on these devices. Use `t3code update` there.
+- **Obtainium shows 403 or "rate limited":** GitHub allows about 60 unauthenticated API calls per
+  hour per connection. Wait up to an hour, or add a token under Obtainium **Settings >
+  Source-specific > GitHub access token** (see the [guide](GUIDE.md#github-access-token-stops-obtainiums-403-errors)).
 - **Starting over:** `t3code uninstall`, then run the install command again.
 
 ## Development
