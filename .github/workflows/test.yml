@@ -41,9 +41,11 @@ jobs:
       - run: bash tests/elf-realign.sh
 
   linux:
-    name: Debian guest under proot on aarch64
+    # Diagnostic only: upstream proot on a plain Linux host, not the Termux build users run.
+    name: Debian guest under proot on aarch64 (diagnostic)
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 90
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v5
       - run: bash tests/e2e-linux.sh

@@ -159,7 +159,7 @@ esac
 
 mkdir -p "$VERSIONS"
 
-is_complete() { [ -x "$VERSIONS/$1/t3" ] && [ "$(cat "$VERSIONS/$1/.install-complete" 2>/dev/null)" = "$1" ]; }
+is_complete() { [ -f "$VERSIONS/$1/t3" ] && [ "$(cat "$VERSIONS/$1/.install-complete" 2>/dev/null)" = "$1" ]; }
 active_version() { jq -r '.activeVersion // empty' "$STATE" 2>/dev/null || true; }
 has_pending_update() { jq -e '.update.status == "pending"' "$STATE" >/dev/null 2>&1; }
 is_blocked() { grep -qxF "$1" "$BLOCKED" 2>/dev/null; }
@@ -197,6 +197,7 @@ install_version() {
   is_complete "$v" && return 0
   archive="t3-$v-linux-$ARCH.tar.gz"
   stage=$(mktemp -d "$VERSIONS/.staging-XXXXXX")
+  chmod 755 "$stage"
   log "downloading T3 Code $v"
   if ! curl -fSL --retry 3 --progress-bar -o "$stage/$archive" "$BASE_URL/v$v/$archive" ||
     ! curl -fsSL --retry 3 -o "$stage/SHA256SUMS" "$BASE_URL/v$v/SHA256SUMS"; then
@@ -340,7 +341,7 @@ cmd_prepare_launch() {
   fi
   v=$(active_version)
   rt="$VERSIONS/$v/t3"
-  [ -x "$rt" ] || die "no usable T3 Code runtime (run: t3code update)"
+  [ -f "$rt" ] || die "no usable T3 Code runtime (run: t3code update)"
   # Keep the state's protocol in step with what this runtime's launcher speaks.
   if ! has_pending_update; then
     proto=$(launcher_protocol "$rt")
