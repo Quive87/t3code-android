@@ -18,6 +18,8 @@ installed next to it.
 
 ## Install
 
+**New to this? Follow the [step-by-step guide](GUIDE.md).** It shows what you see at every step.
+
 You need an arm64 Android device with Android 7 or newer and about 4 GB of free space.
 
 1. **Install Obtainium.** On the tablet, download `app-arm64-v8a-release.apk` from
