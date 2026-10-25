@@ -32,6 +32,14 @@ jobs:
           docker run --rm --privileged -v "$GITHUB_WORKSPACE:/repo:ro" \
             termux/termux-docker:aarch64 bash /repo/tests/e2e-termux.sh
 
+  elf-realign:
+    name: 16 KB page realignment, native aarch64
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - run: bash tests/elf-realign.sh
+
   linux:
     name: Debian guest under proot on aarch64
     runs-on: ubuntu-24.04-arm

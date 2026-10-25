@@ -99,8 +99,8 @@ guest node -e '
     const o = b.readBigUInt64LE(p + 8), v = b.readBigUInt64LE(p + 16);
     if ((v - o) % 65536n !== 0n) { console.error("misaligned segment at 0x" + v.toString(16)); process.exit(1); }
   }' && pass "every segment is 64 KB-congruent" || fail "segments still misaligned"
-v16=$(guest /tmp/t3-16k --version 2> /dev/null | tail -n1)
-[ -n "$v16" ] && pass "realigned binary still runs ($v16)" || fail "realigned binary does not run"
+v16=$(guest /tmp/t3-16k --version 2>&1 | tail -n1)
+guest /tmp/t3-16k --version > /dev/null 2>&1 && pass "realigned binary still runs ($v16)" || fail "realigned binary does not run: $v16"
 guest rm -f /tmp/t3-16k
 
 section "Stop"

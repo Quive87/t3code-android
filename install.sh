@@ -677,7 +677,8 @@ open_url() { command -v termux-open-url >/dev/null 2>&1 && timeout 8 termux-open
 # Termux's wake lock keeps the CPU running while the server works with the screen off.
 wake_lock() { [ "$T3A_WAKE_LOCK" = 1 ] && timeout 10 termux-wake-lock > /dev/null 2>&1; return 0; }
 wake_unlock() { [ "$T3A_WAKE_LOCK" = 1 ] && timeout 10 termux-wake-unlock > /dev/null 2>&1; return 0; }
-android_sdk() { command -v getprop >/dev/null 2>&1 && getprop ro.build.version.sdk 2>/dev/null || echo 0; }
+prop() { getprop "$1" 2> /dev/null; }
+android_sdk() { local s; s=$(prop ro.build.version.sdk); echo "${s:-0}"; }
 
 rotate_logs() {
   local f
@@ -714,11 +715,13 @@ update_ticker() {
 
 supervise() {
   local child="" ticker="" rc t0 ran fails=0 quick_launcher_fails=0 committed
+  # Only this process holds the lock: every child below closes fd 9, or a leftover
+  # child would keep the next supervisor from starting.
   exec 9> "$STATE_DIR/supervisor.lock"
-  flock -n 9 || exit 0
+  flock -n 9 || { slog "another supervisor is running; not starting a second one"; exit 0; }
   echo $$ > "$STATE_DIR/supervisor.pid"
   trap 'slog "stop requested"; touch "$STATE_DIR/stop"; stop_launcher' TERM INT HUP
-  update_ticker &
+  update_ticker 9>&- &
   ticker=$!
   slog "supervisor started (t3code-android $T3A_VERSION)"
   while [ ! -e "$STATE_DIR/stop" ]; do
@@ -731,10 +734,10 @@ supervise() {
     t0=$(date +%s)
     committed=0
     slog "starting T3 Code $(guest t3code-guest-update active 2>/dev/null)"
-    proot-distro login "$CONTAINER" --user "$GUSER" -- /usr/local/bin/t3code-guest-run >> "$LOG_DIR/server.log" 2>&1 < /dev/null &
+    proot-distro login "$CONTAINER" --user "$GUSER" -- /usr/local/bin/t3code-guest-run >> "$LOG_DIR/server.log" 2>&1 < /dev/null 9>&- &
     child=$!
     while pid_alive "$child"; do
-      sleep 5 &
+      sleep 5 9>&- &
       wait $! 2> /dev/null # returns early when a signal arrives
       # Healthy for 90 s: this version is good, forget the pre-update backup.
       if [ "$committed" = 0 ] && [ $(($(date +%s) - t0)) -ge 90 ] && healthy; then
@@ -765,7 +768,8 @@ supervise() {
     fi
     sleep $((fails < 6 ? 1 << fails : 60))
   done
-  kill "$ticker" 2>/dev/null
+  pkill -P "$ticker" 2> /dev/null
+  kill "$ticker" 2> /dev/null
   rm -f "$STATE_DIR/supervisor.pid"
   wake_unlock
   slog "supervisor stopped"
@@ -796,6 +800,10 @@ cmd_start() {
     say "T3 Code is already running."
     [ "${1:-}" = "--boot" ] || print_where
     return 0
+  fi
+  if launcher_pid > /dev/null; then
+    # A server left behind without its supervisor (for example after a crash).
+    cmd_stop > /dev/null
   fi
   rm -f "$STATE_DIR/stop"
   wake_lock
@@ -1029,8 +1037,8 @@ cmd_fix_android() {
 cmd_doctor() {
   local ps
   say "${B}Device${N}"
-  if command -v getprop > /dev/null 2>&1; then
-    say "  $(getprop ro.product.manufacturer) $(getprop ro.product.model), Android $(getprop ro.build.version.release) (SDK $(getprop ro.build.version.sdk))"
+  if [ -n "$(prop ro.build.version.release)" ]; then
+    say "  $(prop ro.product.manufacturer) $(prop ro.product.model), Android $(prop ro.build.version.release) (SDK $(prop ro.build.version.sdk))"
   fi
   say "  CPU: $(uname -m)   Termux: ${TERMUX_VERSION:-?} (${TERMUX_APK_RELEASE:-unknown source})"
   say "  Free space: $(df -h "$HOME" 2>/dev/null | awk 'NR==2 { print $4 }')"
